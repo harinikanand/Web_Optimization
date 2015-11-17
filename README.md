@@ -35,9 +35,16 @@ Prerequisites:
 ####Part 2: Optimize Frames per Second in pizza.html
 
 1. Open google chrome
-2. Open the views/pizza.htmile
+2. Open the views/pizza.html
 3. Open Google developer tools and run timeline by scrolling the page and stop the timeline
 
+####Part 3: Optimize time to resize pizzas in pizza.html (should be less than < 5 milliseconds)
+
+1. Open google chrome
+2. Open the views/pizza.html
+3. use the slide option on the page and move from medium to small or large 
+4. Check the console print out
+5. Time to resize pizzas should be < 5 milliseconds
 
 Changes Implemented:
 
@@ -194,3 +201,50 @@ function updatePositions() {
 7. I tried worker threads but it would not work with Chrome
 I tried to follow instructions to make it run with the webserver configuration.
 But still encountered a number of errors and abandoned the solution to use worker thread.
+
+
+------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
+Part 3: To get time to resize pizzas to be less than 5ms, I made the following changes:
+
+1. Made the following changes to changePizzaSizes.
+
+Used ForEach. Determined the value for dX and newwidth only once. 
+
+// Iterates through pizza elements on the page and changes their widths
+  function changePizzaSizes(size) {
+    var randomPizzas = document.getElementsByClassName('randomPizzaContainer');
+    var dx = determineDx(randomPizzas[0],size);
+    var newwidth = randomPizzas[0].offsetWidth + dx + 'px';
+    var randomPizzasArray = Array.prototype.slice.call(randomPizzas);
+    randomPizzasArray.forEach(function changeStyle(value) {
+      value.style.width = newwidth;
+    });
+  }
+
+2. Used Document Fragment to add pizzaElements to PizzaDivs.
+
+var pizzasDiv = document.getElementById("randomPizzas");
+// This for-loop actually creates and appends all of the pizzas when the page loads
+var docFrag = document.createDocumentFragment();
+for (var i = 2; i < 100; i++) {
+  docFrag.appendChild(pizzaElementGenerator(i));
+}
+pizzasDiv.appendChild(docFrag);
+
+3. Implemented the changes suggested by the reviewed and declared elem outside the loop
+
+
+var elem;
+  for (var i = 0; i < totalPizzas; i++) {
+    elem = document.createElement('img');
+    elem.className = 'mover';
+    elem.src = "images/pizza-min.png";
+    elem.style.height = "100px";
+    elem.style.width = "73.333px";
+    elem.basicLeft = (i % cols) * s;
+    elem.style.top = (Math.floor(i / cols) * s) + 'px';
+    document.querySelector("#movingPizzas1").appendChild(elem);
+  }
+
+  
